@@ -1,0 +1,11 @@
+# G1 ACQ v7.6.0 Quantumult X 重写
+# 引用到 [rewrite_remote]。本机报告规则必须写在通配响应规则之前。
+# Quantumult X 对同一请求只执行第一条命中的重写。
+# 重写订阅不能附带分流。若 Google One 走 HTTP/3，在配置 [general] 另行丢弃 QUIC：
+# udp_drop_list = QUIC
+# 该设置作用于整机 UDP，不只 one.google.com，且不回 ICMP。
+
+hostname = one.google.com
+
+^https:\/\/one\.google\.com\/g1-sku-report\/?(\?.*)?$ url script-echo-response https://cdn.jsdelivr.net/gh/crhywun/g1-acq@v7.6.0/g1-sku-report.js
+^https:\/\/one\.google\.com\/ url script-response-body https://cdn.jsdelivr.net/gh/crhywun/g1-acq@v7.6.0/g1-acq.js

@@ -1,8 +1,107 @@
-/* Google One combined 2TB / 20TB / 30TB mappings for Shadowrocket. */
+/* @generated from src/host.js and src/g1-acq.js. Edit sources, then run: node scripts/build.cjs */
+"use strict";
+
+/* Normalizes Shadowrocket, Quantumult X, and Loon script globals. */
+var G1Host = (function () {
+  var name = detectHost();
+
+  function detectHost() {
+    if (typeof $task !== "undefined") return "quantumultx";
+    if (typeof $loon !== "undefined") return "loon";
+    return "shadowrocket";
+  }
+
+  function label() {
+    if (name === "quantumultx") return "Quantumult X";
+    if (name === "loon") return "Loon";
+    return "Shadowrocket";
+  }
+
+  function canRead() {
+    if (name === "quantumultx") {
+      return typeof $prefs !== "undefined" && typeof $prefs.valueForKey === "function";
+    }
+    return typeof $persistentStore !== "undefined" && typeof $persistentStore.read === "function";
+  }
+
+  function read(key) {
+    if (name === "quantumultx") return $prefs.valueForKey(key);
+    return $persistentStore.read(key);
+  }
+
+  function write(value, key) {
+    if (name === "quantumultx") {
+      if (typeof $prefs === "undefined" || typeof $prefs.setValueForKey !== "function") {
+        throw new Error("persistent store unavailable");
+      }
+      return $prefs.setValueForKey(value, key);
+    }
+    if (typeof $persistentStore === "undefined" || typeof $persistentStore.write !== "function") {
+      throw new Error("persistent store unavailable");
+    }
+    return $persistentStore.write(value, key);
+  }
+
+  function requestUrl() {
+    return typeof $request === "object" && $request ? $request.url : "";
+  }
+
+  function responseBody() {
+    return typeof $response === "object" && $response ? $response.body : undefined;
+  }
+
+  // Quantumult X script-response-body drops the body when $done omits it.
+  function finishUnchanged() {
+    var body = responseBody();
+    if (name === "quantumultx" && typeof body === "string") {
+      $done({ body: body });
+      return;
+    }
+    $done({});
+  }
+
+  function finishRewrite(body) {
+    if (typeof body !== "string") {
+      finishUnchanged();
+      return;
+    }
+    $done({ body: body });
+  }
+
+  function finishPassthrough() {
+    $done({});
+  }
+
+  // Shadowrocket and Loon mock responses use response.status.
+  // Quantumult X script-echo-response uses a status line string.
+  function finishResponse(status, headers, body) {
+    if (name === "quantumultx") {
+      $done({ status: "HTTP/1.1 " + status + " OK", headers: headers, body: body });
+      return;
+    }
+    $done({ response: { status: status, headers: headers, body: body } });
+  }
+
+  return {
+    name: name,
+    label: label,
+    canRead: canRead,
+    read: read,
+    write: write,
+    requestUrl: requestUrl,
+    responseBody: responseBody,
+    finishUnchanged: finishUnchanged,
+    finishRewrite: finishRewrite,
+    finishPassthrough: finishPassthrough,
+    finishResponse: finishResponse
+  };
+})();
+
+/* Google One combined 2TB / 20TB / 30TB mappings. */
 "use strict";
 
 (function () {
-  var VERSION = "g1-acq-v7.5";
+  var VERSION = "g1-acq-v7.6";
   var SOURCE_PREFIX = "g1.ios.2tb.";
   // User-selected 12-month offer ID from the screenshot; store metadata is still unverified.
   var TARGET = "g1.2tb.ai.12months_ip_90p";
@@ -19,15 +118,15 @@
   var SCAN_LIMIT = 300;
   var RECENT_LIMIT = 10;
   var MAX_EVENT_COUNT = 9007199254740991;
-  var url = typeof $request === "object" && $request ? $request.url : "";
+  var url = G1Host.requestUrl();
 
   if (typeof url !== "string" || !/^https:\/\/one\.google\.com\//.test(url) ||
       /^https:\/\/one\.google\.com\/g1-sku-report\/?(?:\?|$)/.test(url)) {
-    $done({});
+    G1Host.finishUnchanged();
     return;
   }
 
-  var body = typeof $response === "object" && $response ? $response.body : undefined;
+  var body = G1Host.responseBody();
   try {
     collectOriginalSkus(body);
   } catch (error) {
@@ -35,7 +134,7 @@
   }
 
   if (!/^https:\/\/one\.google\.com\/ai\?/.test(url)) {
-    $done({});
+    G1Host.finishUnchanged();
     return;
   }
 
@@ -93,11 +192,8 @@
   };
 
   try {
-    if (typeof $persistentStore !== "undefined" &&
-        typeof $persistentStore.write === "function") {
-      if (!$persistentStore.write(JSON.stringify(record), TEST_KEY)) {
-        console.log("[g1-acq] local record write failed");
-      }
+    if (!G1Host.write(JSON.stringify(record), TEST_KEY)) {
+      console.log("[g1-acq] local record write failed");
     }
   } catch (error) {
     console.log("[g1-acq] local record unavailable");
@@ -108,15 +204,13 @@
     console.log("[g1-acq] " + source.id + " -> " + source.to + " x" + source.count +
       (source.fallback ? " fallback=75p" : ""));
   });
-  $done(hits ? { body: out } : {});
+  G1Host.finishRewrite(hits ? out : undefined);
 
   function collectOriginalSkus(originalBody) {
     var now = new Date().toISOString();
     var saved = {};
     try {
-      if (typeof $persistentStore !== "undefined" && typeof $persistentStore.read === "function") {
-        saved = JSON.parse($persistentStore.read(SCAN_KEY) || "{}");
-      }
+      if (G1Host.canRead()) saved = JSON.parse(G1Host.read(SCAN_KEY) || "{}");
     } catch (error) {
       saved = {};
     }
@@ -206,9 +300,7 @@
     };
     var stored = false;
     try {
-      if (typeof $persistentStore !== "undefined" && typeof $persistentStore.write === "function") {
-        stored = $persistentStore.write(JSON.stringify(state), SCAN_KEY);
-      }
+      stored = G1Host.write(JSON.stringify(state), SCAN_KEY);
     } catch (error) {
       stored = false;
     }

@@ -1,27 +1,125 @@
-/* Local-only report served by a Shadowrocket http-request script. */
+/* @generated from src/host.js and src/g1-sku-report.js. Edit sources, then run: node scripts/build.cjs */
+"use strict";
+
+/* Normalizes Shadowrocket, Quantumult X, and Loon script globals. */
+var G1Host = (function () {
+  var name = detectHost();
+
+  function detectHost() {
+    if (typeof $task !== "undefined") return "quantumultx";
+    if (typeof $loon !== "undefined") return "loon";
+    return "shadowrocket";
+  }
+
+  function label() {
+    if (name === "quantumultx") return "Quantumult X";
+    if (name === "loon") return "Loon";
+    return "Shadowrocket";
+  }
+
+  function canRead() {
+    if (name === "quantumultx") {
+      return typeof $prefs !== "undefined" && typeof $prefs.valueForKey === "function";
+    }
+    return typeof $persistentStore !== "undefined" && typeof $persistentStore.read === "function";
+  }
+
+  function read(key) {
+    if (name === "quantumultx") return $prefs.valueForKey(key);
+    return $persistentStore.read(key);
+  }
+
+  function write(value, key) {
+    if (name === "quantumultx") {
+      if (typeof $prefs === "undefined" || typeof $prefs.setValueForKey !== "function") {
+        throw new Error("persistent store unavailable");
+      }
+      return $prefs.setValueForKey(value, key);
+    }
+    if (typeof $persistentStore === "undefined" || typeof $persistentStore.write !== "function") {
+      throw new Error("persistent store unavailable");
+    }
+    return $persistentStore.write(value, key);
+  }
+
+  function requestUrl() {
+    return typeof $request === "object" && $request ? $request.url : "";
+  }
+
+  function responseBody() {
+    return typeof $response === "object" && $response ? $response.body : undefined;
+  }
+
+  // Quantumult X script-response-body drops the body when $done omits it.
+  function finishUnchanged() {
+    var body = responseBody();
+    if (name === "quantumultx" && typeof body === "string") {
+      $done({ body: body });
+      return;
+    }
+    $done({});
+  }
+
+  function finishRewrite(body) {
+    if (typeof body !== "string") {
+      finishUnchanged();
+      return;
+    }
+    $done({ body: body });
+  }
+
+  function finishPassthrough() {
+    $done({});
+  }
+
+  // Shadowrocket and Loon mock responses use response.status.
+  // Quantumult X script-echo-response uses a status line string.
+  function finishResponse(status, headers, body) {
+    if (name === "quantumultx") {
+      $done({ status: "HTTP/1.1 " + status + " OK", headers: headers, body: body });
+      return;
+    }
+    $done({ response: { status: status, headers: headers, body: body } });
+  }
+
+  return {
+    name: name,
+    label: label,
+    canRead: canRead,
+    read: read,
+    write: write,
+    requestUrl: requestUrl,
+    responseBody: responseBody,
+    finishUnchanged: finishUnchanged,
+    finishRewrite: finishRewrite,
+    finishPassthrough: finishPassthrough,
+    finishResponse: finishResponse
+  };
+})();
+
+/* Local-only report served by the active client http-request or echo-response script. */
 "use strict";
 
 (function () {
   var ROOT = "https://one.google.com/g1-sku-report";
-  var VERSION = "v7.5.0";
-  var COLLECTOR_VERSION = "g1-acq-v7.5";
+  var VERSION = "v7.6.0";
+  var COLLECTOR_VERSION = "g1-acq-v7.6";
   var CONFIGURED_TARGET = "g1.2tb.ai.12months_ip_90p";
   var LEGACY_TARGET = "g1.2tb.ai.annual";
   var SCAN_KEY = "g1.sku.scan.v1";
   var TEST_KEY = "g1.pro.annual.test.v1";
-  var url = typeof $request === "object" && $request ? $request.url : "";
+  var url = G1Host.requestUrl();
   if (typeof url !== "string" || !/^https:\/\/one\.google\.com\/g1-sku-report\/?(?:\?|$)/.test(url)) {
-    $done({});
+    G1Host.finishPassthrough();
     return;
   }
 
-  var storageAvailable = typeof $persistentStore !== "undefined" &&
-    typeof $persistentStore.read === "function";
+  var storageAvailable = G1Host.canRead();
   var clearMessage = "";
   if (/(?:\?|&)clear=1(?:&|$)/.test(url)) {
     try {
-      var scanCleared = $persistentStore.write("{}", SCAN_KEY);
-      var testCleared = $persistentStore.write("{}", TEST_KEY);
+      var scanCleared = G1Host.write("{}", SCAN_KEY);
+      var testCleared = G1Host.write("{}", TEST_KEY);
       clearMessage = scanCleared && testCleared ? "本工具的两份本地记录已清空。" : "本地记录清空未完成。";
     } catch (error) {
       clearMessage = "本地存储接口暂未就绪。";
@@ -31,7 +129,7 @@
   function load(key) {
     if (!storageAvailable) return {};
     try {
-      var value = JSON.parse($persistentStore.read(key) || "{}");
+      var value = JSON.parse(G1Host.read(key) || "{}");
       return value && value.schemaVersion === 1 ? value : {};
     } catch (error) {
       return {};
@@ -158,7 +256,7 @@
   if (exportJSON) {
     headers["Content-Type"] = "application/json; charset=utf-8";
     headers["Content-Disposition"] = 'attachment; filename="g1-sku-report.json"';
-    $done({ response: { status: 200, headers: headers, body: JSON.stringify(report, null, 2) } });
+    G1Host.finishResponse(200, headers, JSON.stringify(report, null, 2));
     return;
   }
 
@@ -208,7 +306,7 @@
     "<h1>Google One SKU 本地报告</h1>",
     "<p class=badge>本机脚本已接管 · " + VERSION + "</p>",
     "<nav class=actions aria-label=报告操作><form method=get action=\"" + ROOT + "\"><button type=submit name=format value=json>导出 JSON</button></form><a href=\"" + ROOT + "\">刷新报告</a></nav>",
-    "<p class=note>此页由当前设备的 Shadowrocket 生成；地址栏沿用 one.google.com，采集记录保存在当前设备。</p>",
+    "<p class=note>此页由当前设备的 " + G1Host.label() + " 生成；地址栏沿用 one.google.com，采集记录保存在当前设备。</p>",
     "<p class=note>保持一个 G1 ACQ 模块开启即可：先采集原始响应中的编号，再执行三档改写。</p>",
     clearMessage ? "<p>" + escape(clearMessage) + "</p>" : "",
     storageAvailable ? "" : "<p>本地存储接口暂未就绪；此页尚未读取到采集记录。</p>",
@@ -238,5 +336,5 @@
     "<form method=get action=\"" + ROOT + "\"><button name=clear value=1>清空本工具的采集与测试记录</button></form>",
     "<p class=note>浏览方案后刷新本页查看记录；独立采集器和历史改写副本保持停用，避免重复记录。</p></html>"
   ].join("");
-  $done({ response: { status: 200, headers: headers, body: html } });
+  G1Host.finishResponse(200, headers, html);
 })();
