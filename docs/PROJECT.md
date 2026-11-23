@@ -22,7 +22,7 @@
 
 ## 已知问题与阻塞
 
-- jsDelivr 安装地址要等仓库打上 `v7.6.0` tag 才可下载。
+- 安装地址仓库为 `fansys/g1-acq`。jsDelivr 要等该仓库打上 `v7.6.0` tag 才可下载。
 - Quantumult X 重写不能携带 UDP 443 规则。HTTP/3 需用户在 `[general]` 设置 `udp_drop_list = QUIC`。
 - Quantumult X 与 Loon 没有实机 HTTPS 解密验证，只跑了 Node 宿主模拟。
 

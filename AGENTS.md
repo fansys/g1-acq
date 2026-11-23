@@ -18,7 +18,7 @@ Google One 订阅页 SKU 采集与三档改写。发布脚本同时给 Shadowroc
 
 ## 约束
 
-- 安装 URL 固定 `@v7.6.0`。发版前打同名 tag，否则 jsDelivr 地址没有这些文件。
+- 发布仓库是 `fansys/g1-acq`。安装 URL 固定 `https://cdn.jsdelivr.net/gh/fansys/g1-acq@v7.6.0/`。发版前打同名 tag，否则 jsDelivr 地址没有这些文件。
 - 本地键保持 `g1.sku.scan.v1`、`g1.pro.annual.test.v1`，`schemaVersion` 保持 `1`。不要把 Quantumult X 的 `$prefs` 和另外两个客户端的 `$persistentStore` 当成同一份数据。
 - Quantumult X 重写里，本机报告的 `script-echo-response` 必须排在通配 `script-response-body` 之前。
 - 不要给脚本加网络上报。响应里只改商品 ID 字符串。

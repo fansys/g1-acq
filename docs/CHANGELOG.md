@@ -1,5 +1,9 @@
 # Changelog
 
+## 2026-11-23 安装地址改为 fansys/g1-acq
+
+- jsDelivr 与模块内脚本地址从 `crhywun/g1-acq` 改为 `fansys/g1-acq`。版本仍是 `@v7.6.0`。
+
 ## 2026-11-23 支持 Quantumult X 与 Loon
 
 - 发布版本改为 `v7.6.0`，响应脚本 `g1-acq-v7.6`。

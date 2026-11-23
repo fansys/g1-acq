@@ -537,7 +537,7 @@ test("the new installer replaces the old entry and all modules share one fixed r
     if (file === "g1-acq-v7.sgmodule") assert.match(module, /^#!name=G1 ACQ$/m);
     for (const script of scripts) {
       const url = script.match(/script-path=([^,\s]+)/)[1];
-      assert.match(url, /^https:\/\/cdn\.jsdelivr\.net\/gh\/crhywun\/g1-acq@v7\.6\.0\/[a-z0-9.-]+\.js$/);
+      assert.match(url, /^https:\/\/cdn\.jsdelivr\.net\/gh\/fansys\/g1-acq@v7\.6\.0\/[a-z0-9.-]+\.js$/);
       const base = url.slice(0, url.lastIndexOf("/") + 1);
       if (!scriptBase) scriptBase = base;
       assert.equal(base, scriptBase);
@@ -610,7 +610,7 @@ test("Loon keeps the Shadowrocket response shape and names itself in the report"
 });
 
 test("Quantumult X and Loon installers share the v7.6.0 scripts and report match", () => {
-  const release = "https://cdn.jsdelivr.net/gh/crhywun/g1-acq@v7.6.0/";
+  const release = "https://cdn.jsdelivr.net/gh/fansys/g1-acq@v7.6.0/";
   const reportUrls = [REPORT, REPORT + "?format=json", REPORT + "/", REPORT + "/?format=json"];
   const rejected = [REPORT + "-other", REPORT + "/other", "https://one.google.com.evil/g1-sku-report"];
 

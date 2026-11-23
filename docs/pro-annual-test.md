@@ -14,9 +14,9 @@
 
 | 客户端 | 安装地址 |
 |---|---|
-| Shadowrocket | `https://cdn.jsdelivr.net/gh/crhywun/g1-acq@v7.6.0/g1-acq-v7.sgmodule` |
-| Quantumult X | `https://cdn.jsdelivr.net/gh/crhywun/g1-acq@v7.6.0/g1-acq-v7.snippet` |
-| Loon | `https://cdn.jsdelivr.net/gh/crhywun/g1-acq@v7.6.0/g1-acq-v7.plugin` |
+| Shadowrocket | `https://cdn.jsdelivr.net/gh/fansys/g1-acq@v7.6.0/g1-acq-v7.sgmodule` |
+| Quantumult X | `https://cdn.jsdelivr.net/gh/fansys/g1-acq@v7.6.0/g1-acq-v7.snippet` |
+| Loon | `https://cdn.jsdelivr.net/gh/fansys/g1-acq@v7.6.0/g1-acq-v7.plugin` |
 
 三个地址引用同一对 `@v7.6.0` 脚本。Shadowrocket 在模块管理添加；Quantumult X 作为重写资源引用；Loon 作为插件添加。从旧版本升级时，只替换当前客户端的旧 **G1 ACQ** 一次。安装或升级后重新连接，再重新打开 Google App 的方案页。升级保留该客户端自己的本地历史；三个客户端的存储不互通。重复安装不会促使服务器下发新 SKU，诊断时先比较版本、计数与响应时间。
 
@@ -211,7 +211,7 @@ JSON 中的核心采集字段是 `scan.skus`，每项含 `id`、`count`、`lastS
 采集 / 测试时间（含时区）：[填写]
 iOS / Google App / Shadowrocket 版本：[填写]
 主模块名称：G1 ACQ
-主模块地址：https://cdn.jsdelivr.net/gh/crhywun/g1-acq@v7.6.0/g1-acq-v7.sgmodule
+主模块地址：https://cdn.jsdelivr.net/gh/fansys/g1-acq@v7.6.0/g1-acq-v7.sgmodule
 主模块发布版本：v7.6.0
 主模块脚本版本：g1-acq-v7.6
 运行方式：单模块被动采集原始 SKU 与最近10次响应，再执行三档改写（含 2TB 用户指定候选）

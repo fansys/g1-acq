@@ -16,9 +16,9 @@ Google One（iOS）订阅入口的商品 ID 改写与采集工具。采集与改
 
 | 客户端 | 类型 | 安装地址 |
 |---|---|---|
-| Shadowrocket | 模块 | `https://cdn.jsdelivr.net/gh/crhywun/g1-acq@v7.6.0/g1-acq-v7.sgmodule` |
-| Quantumult X | 重写 | `https://cdn.jsdelivr.net/gh/crhywun/g1-acq@v7.6.0/g1-acq-v7.snippet` |
-| Loon | 插件 | `https://cdn.jsdelivr.net/gh/crhywun/g1-acq@v7.6.0/g1-acq-v7.plugin` |
+| Shadowrocket | 模块 | `https://cdn.jsdelivr.net/gh/fansys/g1-acq@v7.6.0/g1-acq-v7.sgmodule` |
+| Quantumult X | 重写 | `https://cdn.jsdelivr.net/gh/fansys/g1-acq@v7.6.0/g1-acq-v7.snippet` |
+| Loon | 插件 | `https://cdn.jsdelivr.net/gh/fansys/g1-acq@v7.6.0/g1-acq-v7.plugin` |
 
 从旧版本升级时，用上表地址替换旧 **G1 ACQ** 一次。安装或升级后重新连接，再重新进入 Google App 的订阅页。升级保留本地历史记录；响应诊断不保证产生新 ID，重复安装也不会促使服务器下发新 SKU。
 
